@@ -11,12 +11,23 @@ class GestorIncidencias {
     cantidadPendientes =
         incidencias.where((x) => x.estado == 'Pendiente').length;
   }
-
+  //aqui esta parte del segundo bug
+  //List<Incidencia> buscar(String texto) {
+    //if (texto.trim().isEmpty) return incidencias;
+    //esta funcion solo esta detectando con el contains el titulo, pero no la descripcion
+    //return incidencias.where((x) => x.titulo.contains(texto)).toList();
+  //}
+  //nueva funcion en la que agregamos que coincida con el titulo y tambien con la descripcion
   List<Incidencia> buscar(String texto) {
-    if (texto.trim().isEmpty) return incidencias;
-    return incidencias.where((x) => x.titulo.contains(texto)).toList();
+    final consulta = texto.trim().toLowerCase();
+    if (consulta.isEmpty) return incidencias;
+    return incidencias
+        .where((x) =>
+            x.titulo.toLowerCase().contains(consulta) ||
+            x.descripcion.toLowerCase().contains(consulta))
+        .toList();
   }
-
+  
   Incidencia? porId(String id) {
     for (var x in incidencias) {
       if (x.id == id) return x;
