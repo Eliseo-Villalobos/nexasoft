@@ -28,7 +28,8 @@ class GestorIncidencias {
     if (estado == 'Pendiente') return cantidadPendientes;
     return incidencias.where((x) => x.estado == estado).length;
   }
-
+  //aqui esta parte del primer bug
+  //agregar una llamada a guardar para solucionar el bug
   Future<void> cambiarEstado(String id, String estado) async {
     for (var i = 0; i < incidencias.length; i++) {
       if (incidencias[i].id == id) {
@@ -36,6 +37,8 @@ class GestorIncidencias {
         break;
       }
     }
+    //esto se agrego para poder guardar el cambio realizado
+    await datos.guardar(incidencias);
   }
 
   Future<void> crear(String titulo, String descripcion, String cliente,
