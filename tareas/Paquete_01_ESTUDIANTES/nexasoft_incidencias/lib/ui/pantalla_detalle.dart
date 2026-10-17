@@ -80,6 +80,18 @@ class _PantallaDetalleState extends State<PantallaDetalle> {
                     if (guardando) const Padding(
                       padding: EdgeInsets.only(top: 12), child: LinearProgressIndicator(),
                     ),
+                    //parte para mostrar las prioridades
+                    DropdownButton<String>(
+                        value: item.prioridad,
+                        items: Incidencia.prioridades
+                            .map((p) => DropdownMenuItem(value: p, child: Text(p)))
+                            .toList(),
+                        onChanged: (valor) async {
+                          if (valor == null) return;
+                          await widget.gestor.cambiarPrioridad(item.id, valor);//guarda en disco
+                          setState(() {});//redibuja
+                        },
+                      ),
                     const SizedBox(height: 12),
                     const Text('Los cambios se reflejan al volver a la lista.',
                         style: TextStyle(color: Colors.black54)),

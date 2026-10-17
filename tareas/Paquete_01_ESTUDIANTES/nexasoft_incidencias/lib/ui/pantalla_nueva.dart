@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/gestor_incidencias.dart';
-
+import '../model/incidencia.dart';
 class PantallaNueva extends StatefulWidget {
   final GestorIncidencias gestor;
   const PantallaNueva({super.key, required this.gestor});
@@ -16,6 +16,8 @@ class _PantallaNuevaState extends State<PantallaNueva> {
   final cliente = TextEditingController();
   String categoria = 'Software';
   bool ocupado = false;
+  //la prioridad por default
+  String _prioridad = 'Media';
 
   @override
   void dispose() {
@@ -30,7 +32,7 @@ class _PantallaNuevaState extends State<PantallaNueva> {
     setState(() => ocupado = true);
     try {
       await widget.gestor.crear(
-        titulo.text.trim(), descripcion.text.trim(), cliente.text.trim(), categoria,
+        titulo.text.trim(), descripcion.text.trim(), cliente.text.trim(), categoria, _prioridad,
       );
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
@@ -77,6 +79,17 @@ class _PantallaNuevaState extends State<PantallaNueva> {
                   items: ['Software', 'Hardware', 'Redes']
                       .map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
                   onChanged: ocupado ? null : (v) => setState(() => categoria = v ?? 'Software'),
+                ),
+                //para mostrar la parte de registrar la prioridad
+                DropdownButtonFormField<String>(
+                  value: _prioridad,
+                  decoration: const InputDecoration(labelText: 'Prioridad'),
+                  items: Incidencia.prioridades
+                      .map((p) => DropdownMenuItem(value: p, child: Text(p)))
+                      .toList(),
+                  onChanged: (valor) {
+                    if (valor != null) setState(() => _prioridad = valor);
+                  },
                 ),
                 const SizedBox(height: 24),
                 FilledButton.icon(

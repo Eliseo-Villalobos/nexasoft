@@ -6,6 +6,10 @@ class Incidencia {
   String categoria;
   String estado;
   String fecha;
+  String prioridad;
+  //nuevo campo
+  //que sea constante y ya con 3 valores por default
+  static const List<String> prioridades = ['Baja', 'Media', 'Alta'];
 
   Incidencia({
     required this.id,
@@ -15,6 +19,9 @@ class Incidencia {
     required this.categoria,
     required this.estado,
     required this.fecha,
+    //nuevo campo
+    required this.prioridad, 
+
   });
 
   factory Incidencia.desdeJson(Map<String, dynamic> m) {
@@ -26,6 +33,10 @@ class Incidencia {
       categoria: m['categoria']?.toString() ?? 'Software',
       estado: m['estado']?.toString() ?? 'Pendiente',
       fecha: m['fecha']?.toString() ?? '',
+      //nuevo campo
+      prioridad: Incidencia.prioridades.contains(m['prioridad']?.toString())
+      ? m['prioridad'].toString()
+      : 'Media',
     );
   }
 
@@ -38,6 +49,8 @@ class Incidencia {
       'categoria': categoria,
       'estado': estado,
       'fecha': fecha,
+      //nuevo campo
+      'prioridad': prioridad,
     };
   }
 }

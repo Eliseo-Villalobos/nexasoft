@@ -41,7 +41,17 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
     if (estado == 'En proceso') return const Color(0xFFB56B13);
     return const Color(0xFFAC4052);
   }
-
+  // para el color de la prioridad
+  Color colorPrioridad(String p) {
+    switch (p) {
+      case 'Alta':
+        return Colors.red;
+      case 'Baja':
+        return Colors.green;
+      default:
+        return Colors.orange;   // Media
+    }
+  }
   Widget resumen(String etiqueta, String valor, IconData icono) {
     return Expanded(
       child: Card(
@@ -185,11 +195,13 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              Text('${item.id}  ·  ${item.cliente}'),
+                                              Text('${item.id}  ·  ${item.cliente}'  ),
                                               const SizedBox(height: 6),
                                               Text(item.estado, style: TextStyle(
                                                 color: colorEstado(item.estado), fontWeight: FontWeight.bold,
                                               )),
+                                              //para mostrar la prioridad con su color representando el grado
+                                              Text(item.prioridad, style: TextStyle(color: colorPrioridad(item.prioridad)))
                                             ],
                                           ),
                                         ),
