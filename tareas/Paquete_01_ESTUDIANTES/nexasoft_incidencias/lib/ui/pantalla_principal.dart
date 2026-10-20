@@ -91,10 +91,83 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
       );
     }
   }
+  //parte del feat-002 aplicar filtros
+  //variables por default para mostrar en los filtros
+  String filtroEstado = 'Todos';
+  String filtroPrioridad = 'Todas';
+  //variable para restablecer la consulta y los filtros
+  final buscador = TextEditingController();
+  @override
+  void dispose() {
+    buscador.dispose();
+    super.dispose();
+  }
+  //funcion para abrir y mostrar los filtros
+  void abrirFiltros() {
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setHoja) => AlertDialog(
+          title: const Text('Filtros'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              //para mostrar el filtro de Estado
+              DropdownButtonFormField<String>(
+                value: filtroEstado,
+                decoration: const InputDecoration(labelText: 'Estado'),
+                items: ['Todos', 'Pendiente', 'En proceso', 'Resuelta']
+                    .map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+                onChanged: (v) {
+                  setState(() => filtroEstado = v ?? 'Todos');  // actualiza la lista de atras
+                  setHoja(() {});                               // actualiza el panel
+                },
+              ),
+              //para mostrar el filtro de Prioridad
+              DropdownButtonFormField<String>(
+                value: filtroPrioridad,
+                decoration: const InputDecoration(labelText: 'Prioridad'),
+                items: ['Todas', ...Incidencia.prioridades]//copia las prioridades que tenemos en la clase incidencia 
+                    .map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+                onChanged: (v) {
+                  setState(() => filtroPrioridad = v ?? 'Todas');  // actualiza la lista de atras
+                  setHoja(() {});                               // actualiza el panel
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cerrar'),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  bool get hayFiltros =>
+    busqueda.trim().isNotEmpty || filtroEstado != 'Todos' || filtroPrioridad != 'Todas';
+
+  void restablecer() {
+    buscador.clear();//vacia el campo visible
+    setState(() {
+      busqueda = '';
+      filtroEstado = 'Todos';
+      filtroPrioridad = 'Todas';
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final items = g.buscar(busqueda);
+    //esto se modifico para poder aplicar los resultados de los filtros
+    //final items = g.buscar(busqueda);
+    final items = g.buscar(
+      busqueda,
+      estado: filtroEstado,
+      prioridad: filtroPrioridad,
+    );
     return Scaffold(
       appBar: AppBar(
         title: const Text('NexaSoft | Incidencias'),
@@ -158,18 +231,53 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
                             resumen('Resueltas', '${g.contar('Resuelta')}', Icons.check_circle_outline),
                           ]),
                         ),
+                        //en este padding meteremos un row para que dentro de el este el textfield de busqueda y un botono para filtros
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 5),
-                          child: TextField(
-                            decoration: const InputDecoration(
-                              labelText: 'Buscar incidencias',
-                              hintText: 'Ejemplo: WiFi, correo, pantalla',
-                              prefixIcon: Icon(Icons.search),
-                              border: OutlineInputBorder(),
-                            ),
-                            onChanged: (texto) => setState(() => busqueda = texto),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  //controlador para resatablecer la consulta
+                                  controller: buscador,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Buscar incidencias',
+                                    hintText: 'Ejemplo: WiFi, correo, pantalla',
+                                    prefixIcon: Icon(Icons.search),
+                                    border: OutlineInputBorder(),
+                                  ),
+                                  onChanged: (texto) => setState(() => busqueda = texto),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              IconButton.filledTonal(
+                                icon: const Icon(Icons.filter_list),
+                                tooltip: 'Filtros',
+                                onPressed: abrirFiltros,
+                              ),
+                            ],
                           ),
                         ),
+                        //para visulizar los filtros que tenemos activos y ver la opcion de restablecer
+                        if (hayFiltros)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 17),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    'Filtros activos — Estado: $filtroEstado · Prioridad: $filtroPrioridad',
+                                    style: const TextStyle(color: Colors.black54),
+                                  ),
+                                ),
+                                TextButton.icon(
+                                  onPressed: restablecer,
+                                  icon: const Icon(Icons.restart_alt),
+                                  label: const Text('Restablecer'),
+                                ),
+                              ],
+                            ),
+                          ),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
                           child: Align(
